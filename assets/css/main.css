@@ -272,6 +272,11 @@ bt {
 	padding-bottom:25px;
 }
 
+/* add border to some images */
+.bordered {
+  border:3px solid #E6E6E6;
+}
+
 /* if mobile */
 
 @media only screen and (max-width: 626px)

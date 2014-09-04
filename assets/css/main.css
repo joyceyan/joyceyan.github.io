@@ -294,6 +294,8 @@ bt {
 	}
 }
 
+/* don't allow things to take up more than the screen size */
+
 img {
   max-width:100%;
 }

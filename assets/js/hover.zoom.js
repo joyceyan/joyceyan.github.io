@@ -6,7 +6,7 @@
 
             var defaults = {
                 overlay: true,
-                overlayColor: '#2e9dbd',
+                overlayColor: '#34495e',
                 overlayOpacity: 0.9,
                 zoom: 25,
                 speed: 300

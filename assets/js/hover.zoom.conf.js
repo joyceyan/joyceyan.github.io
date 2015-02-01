@@ -1,8 +1,8 @@
         $(function() {
         
-        	
+        	 // note: this is actually gray!
             $('.blue').hoverZoom({
-                overlayColor: '#3498db',
+                overlayColor: '#34495e',
                 zoom: 0
             });
             

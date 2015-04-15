@@ -45,6 +45,10 @@ p {
 }
 
 /* Links */
+.bottom-link {
+  color: #fff;
+}
+
 a {
     color: #000;
     word-wrap: break-word;

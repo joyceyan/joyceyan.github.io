@@ -46,7 +46,7 @@ p {
 
 /* Links */
 a {
-    color: #fff;
+    color: #000;
     word-wrap: break-word;
 
     -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;

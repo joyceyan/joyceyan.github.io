@@ -45,8 +45,9 @@ p {
 }
 
 /* Links */
-.bottom-link {
-  color: #fff;
+.dashed-link {
+  color: black;
+  border-bottom: 1px dashed black;
 }
 
 a {

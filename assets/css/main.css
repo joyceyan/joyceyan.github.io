@@ -44,6 +44,16 @@ p {
     text-align: center;
 }
 
+/* Images */
+.circular {
+  width: 300px;
+  height: 300px;
+  border-radius: 150px;
+  -webkit-border-radius: 150px;
+  -moz-border-radius: 150px;
+  background: url(http://link-to-your/image.jpg) no-repeat;
+}
+
 /* Links */
 .dashed-link {
   color: black;

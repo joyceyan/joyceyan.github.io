@@ -67,6 +67,10 @@ p {
   background: url(http://link-to-your/image.jpg) no-repeat;
 }
 
+.bordered {
+  border: 2px solid #CCC;
+}
+
 /* Links */
 .dashed-link {
   color: black;

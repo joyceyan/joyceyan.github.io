@@ -30,6 +30,11 @@ $(function() {
         zoom: 0
     });
 
+    $('.turquoise').hoverZoom({
+      overlayColor: '#186784',
+      zoom: 0
+    });
+
     /* USAGE
 
     $('#pink').hoverZoom({

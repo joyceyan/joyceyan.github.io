@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fertility Forecaster — Joyce Yan</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Besley:wght@400;700&family=Figtree:wght@400;700&display=swap" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container-wide">
+    <nav>
+      <a class="site-name" href="index.html">Joyce Yan</a>
+      <div class="nav-links">
+        <a href="contact.html">Contact</a>
+      </div>
+    </nav>
+
+    <main>
+      <h1>Fertility Forecaster</h1>
+      <p>This is a tool (available at <a href="https://fertilityforecaster.com">fertilityforecaster.com</a>) that I built that estimates your chances of having your desired number of children. It visualizes the cost of waiting an additional year or two and lets you see how much IVF or freezing your eggs improves your chances. I built a statistical simulation model that is based on published medical research. In the product, users can input their age, health history, and any banked frozen eggs/embryos to see a personalized estimate.</p>
+      <p>A woman who is 30 years old and wants to children for example, will see that she has an 86% chance of having two children naturally if she starts trying now, with odds going up to 96% if she uses IVF. If she waits until she's 33, she can still reach the 90% threshold with IVF:</p>
+      <div class="screenshots screenshots-single">
+        <img src="assets/img/fertility-forecaster/forecast-at-30.png" alt="Fertility Forecaster screenshot">
+      </div>
+      <p>And if she chooses to freeze one batch of eggs at 30 and is able to freeze the average number of eggs for her age (13), then she can reach that 90% threshold with IVF starting at age 35:</p>
+      <div class="screenshots screenshots-single">
+        <img src="assets/img/fertility-forecaster/with-egg-freeze-at-30.png" alt="Fertility Forecaster screenshot with egg freeze">
+      </div>
+      <p>The tool also allows users to input their health history. Higher BMI and smoking status are known to lower fertility, for example. Prior history of live births on the other hand, demonstrates fertility and the tool will model higher chances of conceiving additional children. A 30-year-old woman who already has 2 children and wants to have 2 additional children for example, will see more optimistic results than a 30-year-old woman who wants to have 2 children and has not been pregnant:</p>
+      <div class="screenshots screenshots-single">
+        <img src="assets/img/fertility-forecaster/forecast-4-kids-30.png" alt="Fertility Forecaster screenshot with 2 children already">
+      </div>
+      <p>Fertility Forecaster defaults to some reasonable parameters for how long to wait til switching to IVF, how long to wait between children, and how many IVF cycles to try per child. These are the results with the default parameters for a 35-year-old woman who wants to have two children:</p>
+      <div class="screenshots screenshots-single">
+        <img src="assets/img/fertility-forecaster/forecast-at-35.png" alt="Fertility Forecaster screenshot">
+      </div>
+      <p>But a couple who is highly motivated to have children may adjust the parameters in the application. By decreasing the wait time between children from 15 months to 6 months, increasing the max IVF cycles per child from 3 to 4, and lowering the number of natural cycles before switching to IVF from 12 months to 6, odds with IVF increase from 84.4% to 91.4%:</p>
+      <div class="screenshots screenshots-single">
+        <img src="assets/img/fertility-forecaster/forecast-at-35-adjusted-params.png" alt="Fertility Forecaster screenshot with adjusted parameters">
+      </div>
+      <p>The code for Fertility Forecaster is open sourced on <a href="https://github.com/joyceyan/fertility-forecaster">GitHub</a>. An explanation of the methodology is also available <a href="https://fertilityforecaster.com/methodology.html">here</a>.</p>
+    </main>
+  </div>
+</body>
+</html>

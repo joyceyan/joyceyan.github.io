@@ -1,269 +1,239 @@
-/*
- * This is the personal portfolio of Joyce Yan.
- *
- * Theme based off of STANLEY (blacktie.co)
- * Stanley was created by Carlos Alvarez (alvarez.is)
- *
- * Navbar color: #186784
- * Main font: Avenir
- */
+/* Portfolio — Joyce Yan */
 
-body {
-  background-color: #ffffff;
-  font-family: 'Avenir', sans-serif;
-  font-weight: 400;
-  font-size: 14px;
-  color: #555;
-  -webkit-font-smoothing: antialiased;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Titles */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Avenir', sans-serif;
-  font-weight: 700;
-  color: #333;
-}
-
-/* Hi, I'm Joyce */
-h1 {
-  font-size: 3em;
-  margin-top: 30px;
-  margin-bottom: 30px;
-}
-
-/* Titles for specific projects */
-h4 {
-  font-size: 1.2em;
-  font-weight: normal;
-}
-
-/* Footer contact text */
-h6 {
-  font-size: 2em;
-  font-weight: normal;
-  color: white;
-}
-
-/* Paragraph & Typographic */
-p {
-  line-height: 28px;
-  margin-bottom: 25px;
-  font-size: 16px;
-}
-
-/* For centering things easily */
-.centered {
-  text-align: center;
-}
-
-/* Images */
-.circular {
-  width: 200px;
-  height: 200px;
-  border-radius: 150px;
-  -webkit-border-radius: 150px;
-  -moz-border-radius: 150px;
-  background: url(http://link-to-your/image.jpg) no-repeat;
-}
-
-.bordered {
-  border: 2px solid #CCC;
-}
-
-/* Links */
-.dashed-link {
-  color: black;
-  border-bottom: 1px dashed #888;
-}
-
-a {
-  color: #000;
-  word-wrap: break-word;
-  -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -o-transition: color 0.1s ease-in, background 0.1s ease-in;
-  transition: color 0.1s ease-in, background 0.1s ease-in;
-}
-
-/* Decorating links */
-a:hover,
-a:focus {
-    color: #bdc3c7;
-    text-decoration: none;
-    outline: 0;
-}
-
-/* Fade in and out for links */
-a:before,
-a:after {
-  -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -o-transition: color 0.1s ease-in, background 0.1s ease-in;
-  transition: color 0.1s ease-in, background 0.1s ease-in;
-}
-
-/* Links within paragraphs */
-p a:hover {
-  color: #888;
-}
-
-/* Divider featured in project pages */
-hr {
-  display: block;
-  height: 1px;
-  border: 0;
-  border-top: 1px solid #ccc;
-  margin: 1em 0;
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
   padding: 0;
 }
 
-/* Text in navbar */
-.navbar {
-  text-transform: uppercase;
-  margin-bottom: 0px;
-}
-
-.navbar-inverse {
-  padding-bottom: 40px;
-  padding-top: 40px;
-  background-color: #186784;
-  border-color: white;
-}
-
-/* Color of links in navbar */
-.navbar-inverse .navbar-nav > li > a {
-  color: white;
-}
-.navbar-inverse .navbar-nav > li > a:hover {
-  color: #bdc3c7;
-}
-
-/* Central "Joyce Yan" in navbar */
-.navbar-brand {
-  font-weight: 700;
-  font-size: 20px;
-  letter-spacing: 2px;
-}
-
-.navbar-inverse .navbar-brand {
-  color: white;
-}
-
-.navbar-inverse .navbar-toggle {
-  border-color: transparent;
-}
-
-.progress-bar-theme {
-  background-color: #186784;
-}
-
-/* For each link in the footer */
-.contact-link {
-  padding-left:10px;
-  padding-right:10px;
-}
-
-/* Helpers */
-
-.mt {
-  margin-top: 40px;
-  margin-bottom: 40px;
-}
-
-.pt {
-  padding-top: 50px;
-  padding-bottom: 50px;
-}
-
-/* +++++ WRAP SECTIONS +++++ */
-
-#welcome {
-  padding-top: 70px;
-  padding-bottom: 70px;
-  background-color: #f2f2f2;
-}
-
-#footer {
-  background-color: #186784;
-  padding-top: 50px;
-  padding-bottom: 50px;
-  text-align: center;
-}
-
-#footer p {
-  color: white;
-}
-
-#footer h4 {
-  color: white;
-  text-transform: uppercase;
-  padding-bottom: 20px;
-}
-
-/* ================== PORTFOLIO IMAGES HOVER EFFECT ================== */
-/* Effects also are controled by hover.zoom.js */
-.zoom {
-  display: block;
-  position: relative;
-  overflow: hidden;
-  background: transparent url(../img/loader.gif) no-repeat center;
-}
-
-.zoomOverlay {
-  position: absolute;
-  top:0; left:0;
-  bottom:0; right:0;
-  display: none;
-  background-image: url(../img/zoom.png);
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.zoom2 {
-  opacity: 1;
-}
-
-.zoom2:hover {
-  opacity: 0.5;
-}
-
-/* glyphicon Configuration */
-.glyphicon {
-  font-size: 40px;
-  color: #186784;
-}
-
-/* make images smaller */
-.half-size {
-  width: 100%;
-  height: 100%;
-}
-
-/* if mobile */
-@media only screen and (max-width: 626px)
-{
-  .navbar-inverse {
-    padding-bottom: 10px;
-    padding-top: 10px;
-  }
-  .col-lg-3 {
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
-  img {
-    width: 100%;
-  }
-}
-
-/* don't allow things to take up more than the screen size */
-
-img {
-  max-width: 100%;
+body {
+  background-color: #fafaf9;
+  font-family: 'Figtree', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
 }
 
 .container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.container-wide {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Typography */
+
+h1, h2, h3 {
+  font-family: 'Besley', serif;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.3;
+}
+
+h1 { font-size: 1.6em; margin-bottom: 0.6em; }
+h2 { font-size: 1.3em; margin-bottom: 0.5em; }
+h3 { font-size: 1.1em; margin-bottom: 0.4em; }
+
+p {
+  margin-bottom: 1em;
+}
+
+/* Links */
+
+a {
+  color: #333;
+  text-decoration: underline;
+  text-decoration-color: #bbb;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+a:hover {
+  color: #111;
+  text-decoration-color: #111;
+}
+
+/* Navigation */
+
+nav {
+  font-family: 'Besley', serif;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40px 0;
+}
+
+nav .site-name {
+  font-weight: 700;
+  font-size: 18px;
+  color: #111;
+  text-decoration: none;
+}
+
+nav .site-name:hover {
+  color: #666;
+  text-decoration: none;
+}
+
+nav .nav-links {
+  display: flex;
+  gap: 24px;
+  font-size: 15px;
+}
+
+nav .nav-links a {
+  color: #555;
+  text-decoration: none;
+}
+
+nav .nav-links a:hover {
+  color: #111;
+}
+
+/* Main content */
+
+main {
+  padding-bottom: 60px;
+}
+
+/* Bio section */
+
+.bio {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 2em;
+}
+
+.bio img {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Divider */
+
+hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 2em 0;
+}
+
+/* Work section */
+
+.work-item {
+  margin-bottom: 0.5em;
+}
+
+.work-item a {
+  font-family: 'Besley', serif;
+  font-weight: 700;
+  color: #111;
+}
+
+.work-item a:hover {
+  color: #666;
+}
+
+.work-item p {
+  margin-top: 0.2em;
+  color: #555;
+  font-size: 0.95em;
+}
+
+/* Contact links */
+
+.contact-links {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-family: 'Besley', serif;
+  font-size: 15px;
+}
+
+.contact-links a {
+  color: #555;
+}
+
+.contact-links a:hover {
+  color: #111;
+}
+
+/* Contact page list */
+
+.contact-list {
+  list-style: none;
+  padding: 0;
+  line-height: 2.2;
+}
+
+/* Project page */
+
+.project-links {
+  margin-bottom: 1.5em;
+}
+
+.project-links a {
+  display: block;
+  margin-bottom: 0.3em;
+}
+
+.tech {
+  color: #555;
+  font-size: 0.95em;
+}
+
+/* Images */
+
+img {
   max-width: 100%;
+  height: auto;
+  margin: 1em 0;
+}
+
+.screenshots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 1.5em 0;
+}
+
+.screenshots img {
+  flex: 1 1 200px;
+  min-width: 0;
+  margin: 0;
+}
+
+.screenshots-side-by-side img:first-child {
+  flex: 7;
+}
+
+.screenshots-side-by-side img:last-child {
+  flex: 5;
+}
+
+/* Responsive */
+
+@media (max-width: 480px) {
+  nav {
+    padding: 24px 0;
+  }
+
+  .bio {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .contact-links {
+    gap: 16px;
+  }
+
 }

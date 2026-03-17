@@ -195,6 +195,15 @@ hr {
   font-size: 0.95em;
 }
 
+/* Blockquotes */
+
+blockquote {
+  border-left: 3px solid #ccc;
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  color: #555;
+}
+
 /* Images */
 
 img {

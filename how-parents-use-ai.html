@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Parents Use AI — Joyce Yan</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Besley:wght@400;700&family=Figtree:wght@400;700&display=swap" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-3.4.0.min.js"></script>
+</head>
+<body>
+  <div class="container-wide">
+    <nav>
+      <a class="site-name" href="/">Joyce Yan</a>
+      <div class="nav-links">
+        <a href="/contact">Contact</a>
+      </div>
+    </nav>
+
+    <main>
+      <h1>How do parents use AI?</h1>
+
+      <p>If you spend any time in parenting communities on Reddit or Facebook, you'll see parents talking about using ChatGPT. Some are asking it to write bedtime stories for their kids (myself included). Others are looking for advice on sleep training or potty training. Sam Altman has even said that he can't imagine parenting <i>without</i> ChatGPT. But I was curious what this actually looks like beyond anecdotes in online communities. How are parents really using AI tools? And what can we learn about the kinds of help that parents are looking for?</p>
+      <p>To answer these questions, I turned to <a href="https://huggingface.co/datasets/allenai/WildChat-1M">WildChat-1M</a>, a dataset of 1 million ChatGPT conversations collected with user consent. I built a classification pipeline to identify and categorize conversations where parents are seeking help with parenting-related topics. Out of 838,000 conversations, I found 118 that were clearly parenting-related.</p>
+
+      <h2>What parents ask ChatGPT about</h2>
+      <p>The 118 parenting conversations fell into three broad categories: writing help, advice, and knowledge. A more detailed summary of individual conversations is available <a href="https://github.com/joyceyan/how-parents-use-ai/blob/main/results/detailed-overview.md">here</a>.
+      </p>
+
+      <div style="max-width: 800px; margin: 0 auto;">
+        <div id="sunburst-chart"></div>
+      </div>
+
+      <script>
+        var data = [{
+          type: "sunburst",
+          labels: [
+            "Parenting<br>Conversations",
+            "Writing Help",
+            "Advice",
+            "Knowledge",
+            "Bar/Bat Mitzvah speeches",
+            "Birthday messages",
+            "Creative activities",
+            "Homework help",
+            "Letters & thank you notes",
+            "Logistics / Planning",
+            "School communication",
+            "Stories & Poems",
+            "Behavioral guidance",
+            "Breastfeeding and Feeding",
+            "Coparenting",
+            "Educating children at home",
+            "Emotional support",
+            "Other parenting",
+            "Potty Training & Diapers",
+            "Pregnancy",
+            "School - Other",
+            "Sleep",
+            "Baby names",
+            "Developmental questions",
+            "Explain slang",
+            "Illness / Symptoms",
+            "Parental control over tech"
+          ],
+          parents: [
+            "",
+            "Parenting<br>Conversations",
+            "Parenting<br>Conversations",
+            "Parenting<br>Conversations",
+            "Writing Help",
+            "Writing Help",
+            "Writing Help",
+            "Writing Help",
+            "Writing Help",
+            "Writing Help",
+            "Writing Help",
+            "Writing Help",
+            "Advice",
+            "Advice",
+            "Advice",
+            "Advice",
+            "Advice",
+            "Advice",
+            "Advice",
+            "Advice",
+            "Advice",
+            "Advice",
+            "Knowledge",
+            "Knowledge",
+            "Knowledge",
+            "Knowledge",
+            "Knowledge"
+          ],
+          values: [118, 54, 42, 22, 4, 7, 6, 2, 5, 12, 12, 6, 4, 4, 2, 4, 12, 1, 6, 3, 5, 1, 3, 3, 4, 8, 4],
+          branchvalues: "total",
+          textinfo: "label+value",
+          maxdepth: 2,
+          insidetextorientation: "horizontal",
+          marker: {
+            colors: [
+              "#fafaf9",
+              "#4C78A8",
+              "#E45756",
+              "#54A24B",
+              "#4C78A8",
+              "#4C78A8",
+              "#4C78A8",
+              "#4C78A8",
+              "#4C78A8",
+              "#4C78A8",
+              "#4C78A8",
+              "#4C78A8",
+              "#E45756",
+              "#E45756",
+              "#E45756",
+              "#E45756",
+              "#E45756",
+              "#E45756",
+              "#E45756",
+              "#E45756",
+              "#E45756",
+              "#E45756",
+              "#54A24B",
+              "#54A24B",
+              "#54A24B",
+              "#54A24B",
+              "#54A24B"
+            ]
+          },
+          textfont: {
+            color: [
+              "#161a1c",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff",
+              "#ffffff"
+            ]
+          },
+          hovertemplate: "<b>%{label}</b><br>%{value} conversations<br>%{percentRoot:.1%} of total<extra></extra>",
+          hoverlabel: {
+            font: {
+              color: [
+                "#161a1c",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff",
+                "#ffffff"
+              ]
+            }
+          }
+        }];
+
+        var layout = {
+          font: {
+            family: "Figtree, sans-serif",
+            size: 16,
+            color: "#161a1c"
+          },
+          margin: { t: 20, l: 20, r: 20, b: 20 },
+          paper_bgcolor: "#fafaf9"
+        };
+
+        Plotly.newPlot("sunburst-chart", data, layout, { responsive: true });
+      </script>
+
+      <p>
+        Pretty much all of the "writing help" conversations I read through and agreed this seemed like a good case of using AI to help with a task that would either be more difficult or more time consuming to do as a human. I've luckily never had my insurance company deny coverage for healthcare treatment for my kids, but if I did, I would probably use ChatGPT to help draft the appeal. I've also used ChatGPT to write stories and songs for my kids, and this seems like an obvious use case where an LLM would be better than (most) humans.
+      </p>
+      <p>
+        The conversations in the "advice" category I found a bit more interesting. I wasn't surprised necessarily that parents were relying on AI to help them parent, but reading through these conversations did make me a bit uncomfortable seeing how influential AI is in people's lives. There were quite a few cases where the parent had already come to a decision, and was looking to ChatGPT to justify the decision, trusting ChatGPT as an authority figure. There was also a conversation where a mom told ChatGPT how they handled a specific parenting situation and asked, "Does this make me a bad mom?". These types of conversations really show why it's important for AI labs to design their models to be helpful and avoid sycophantic behavior.
+      </p>
+      <p>
+        The "knowledge" category was the smallest. These types of conversations probably have the most overlap with what parents could also use Google for. Some of these were pretty straight forward, like asking ChatGPT to define a slang term that their kids were using or asking ChatGPT how to set up parental controls on their child's device. Others, especially medical related questions, were more complex. For example: giving ChatGPT a list of symptoms and asking for a psychiatric diagnosis or asking ChatGPT to interpret an ultrasound report. Of course, people have used Google / webMD to answer these questions in the past, but these conversations definitely show why correctness is important, especially in a medical context.
+      </p>
+
+      <h2>Methodology</h2>
+      <p>The pipeline for identifying parenting conversations had four stages:
+        <ol>
+          <li>Keyword pre-filter: Searched 838,000 English-language conversations in WildChat-1M for parenting-related keywords (e.g. "my son", "my daughter", "toddler", "breastfeeding") to narrow down to ~3,600 candidate conversations.</li>
+          <li>LLM classification: Used Claude Haiku to classify each candidate conversation as parenting-related or not, with a category and subcategory label.</li>
+          <li>Manual review: Reviewed all conversations that were classified as parenting-related to verify accuracy and correct misclassifications.</li>
+          <li>Deduplication: Removed duplicate conversations from the same user on the same topic.</li>
+        </ol>
+      </p>
+
+      <h2>Limitations</h2>
+      <p>
+        This analysis identified only 118 parenting conversations in a dataset of 838,000. The true number is almost certainly higher, and the results may be systematically missing certain types of parenting conversations.
+      </p>
+      <ul>
+        <li>Keyword pre-filter misses: The keyword-based first pass likely missed parenting conversations that didn't contain the specific keywords searched for. For example, a parent asking about child nutrition without using the word "son" or "daughter" would be missed (e.g. "how do i get him to sleep through the night"). This also meant that I missed non-English conversations. Ideally, this stage would be skipped entirely, but running the Claude classifier pipeline on 2468 conversations cost me about $30, implying that running the pipeline on all 838,000 conversations would cost about $10,000.</li>
+        <li>Classifier false negatives: I found 38 false positives during the manual review stage. The LLM classifier may have also produced false negatives by incorrectly rejecting some genuine parenting conversations. A better system prompt or a more capable model than Claude Haiku could improve this.</li>
+        <li>Dataset representativeness: WildChat-1M captures conversations from users who opted in to data collection. These users may not be representative of all parents using ChatGPT. The dataset also only includes ChatGPT conversations, not other AI tools. The conversations collected for this dataset were from April 2023 to March 2024, and are likely already out of date by now with representing how parents currently use AI.</li>
+      </ul>
+
+      <p>The code for this project is available on <a href="https://github.com/joyceyan/how-parents-use-ai">GitHub</a>.</p>
+    </main>
+  </div>
+</body>
+</html>

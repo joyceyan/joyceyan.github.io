@@ -24,10 +24,10 @@
       <h1>How do parents use AI?</h1>
 
       <p>If you spend any time in parenting communities on Reddit or Facebook, you'll see parents talking about using ChatGPT. Some are asking it to write bedtime stories for their kids (myself included). Others are looking for advice on sleep training or potty training. Sam Altman has even said that he can't imagine parenting <i>without</i> ChatGPT. But I was curious what this actually looks like beyond anecdotes in online communities. How are parents really using AI tools? And what can we learn about the kinds of help that parents are looking for?</p>
-      <p>To answer these questions, I turned to <a href="https://huggingface.co/datasets/allenai/WildChat-1M">WildChat-1M</a>, a dataset of 1 million ChatGPT conversations collected with user consent. I built a classification pipeline to identify and categorize conversations where parents are seeking help with parenting-related topics. Out of 838,000 conversations, I found 118 that were clearly parenting-related.</p>
+      <p>To answer these questions, I turned to <a href="https://huggingface.co/datasets/allenai/WildChat-1M">WildChat-1M</a>, a dataset of 1 million ChatGPT conversations collected with user consent. I built a classification pipeline to identify and categorize conversations where parents are seeking help with parenting-related topics. Out of 838,000 conversations, I found 117 that were clearly parenting-related.</p>
 
       <h2>What parents ask ChatGPT about</h2>
-      <p>The 118 parenting conversations fell into three broad categories: writing help, advice, and knowledge. A more detailed summary of individual conversations is available <a href="https://github.com/joyceyan/how-parents-use-ai/blob/main/results/detailed-overview.md">here</a>.
+      <p>The 117 parenting conversations fell into three broad categories: writing help, advice, and knowledge. A more detailed summary of individual conversations is available <a href="https://github.com/joyceyan/how-parents-use-ai/blob/main/results/detailed-overview.md">here</a>.
       </p>
 
       <div style="max-width: 800px; margin: 0 auto;">
@@ -57,13 +57,12 @@
             "Emotional support",
             "Other parenting",
             "Potty Training & Diapers",
-            "Pregnancy",
-            "School - Other",
+            "School Advice",
             "Sleep",
             "Baby names",
             "Developmental questions",
             "Explain slang",
-            "Illness / Symptoms",
+            "Medical Advice",
             "Parental control over tech"
           ],
           parents: [
@@ -88,14 +87,13 @@
             "Advice",
             "Advice",
             "Advice",
-            "Advice",
             "Knowledge",
             "Knowledge",
             "Knowledge",
             "Knowledge",
             "Knowledge"
           ],
-          values: [118, 54, 42, 22, 4, 7, 6, 2, 5, 12, 12, 6, 4, 4, 2, 4, 12, 1, 6, 3, 5, 1, 3, 3, 4, 8, 4],
+          values: [117, 58, 38, 21, 4, 7, 7, 2, 6, 13, 13, 6, 4, 4, 2, 4, 12, 1, 6, 4, 1, 3, 2, 4, 8, 4],
           branchvalues: "total",
           textinfo: "label+value",
           maxdepth: 2,
@@ -114,7 +112,6 @@
               "#4C78A8",
               "#4C78A8",
               "#4C78A8",
-              "#E45756",
               "#E45756",
               "#E45756",
               "#E45756",
@@ -158,7 +155,6 @@
               "#ffffff",
               "#ffffff",
               "#ffffff",
-              "#ffffff",
               "#ffffff"
             ]
           },
@@ -167,7 +163,6 @@
             font: {
               color: [
                 "#161a1c",
-                "#ffffff",
                 "#ffffff",
                 "#ffffff",
                 "#ffffff",
@@ -233,7 +228,7 @@
 
       <h2>Limitations</h2>
       <p>
-        This analysis identified only 118 parenting conversations in a dataset of 838,000. The true number is almost certainly higher, and the results may be systematically missing certain types of parenting conversations.
+        This analysis identified only 117 parenting conversations in a dataset of 838,000. The true number is almost certainly higher, and the results may be systematically missing certain types of parenting conversations.
       </p>
       <ul>
         <li>Keyword pre-filter misses: The keyword-based first pass likely missed parenting conversations that didn't contain the specific keywords searched for. For example, a parent asking about child nutrition without using the word "son" or "daughter" would be missed (e.g. "how do i get him to sleep through the night"). This also meant that I missed non-English conversations. Ideally, this stage would be skipped entirely, but running the Claude classifier pipeline on 2468 conversations cost me about $30, implying that running the pipeline on all 838,000 conversations would cost about $10,000.</li>

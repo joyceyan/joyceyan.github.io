@@ -232,14 +232,25 @@
       </p>
 
       <h2>Methodology</h2>
-      <p>The pipeline for identifying parenting conversations had four stages:
-        <ol>
-          <li>Keyword pre-filter: Searched 838,000 English-language conversations in WildChat-1M for parenting-related keywords (e.g. "my son", "my daughter", "toddler", "breastfeeding") to narrow down to ~3,600 candidate conversations.</li>
-          <li>LLM classification: Used Claude Haiku to classify each candidate conversation as parenting-related or not, with a category and subcategory label.</li>
-          <li>Manual review: Reviewed all conversations that were classified as parenting-related to verify accuracy and correct misclassifications.</li>
-          <li>Deduplication: Removed duplicate conversations from the same user on the same topic.</li>
-        </ol>
-      </p>
+      <p>The pipeline for identifying parenting conversations had six stages:</p>
+
+      <h4>1. Dataset ingestion</h4>
+      <p>We pulled the full <a href="https://huggingface.co/datasets/allenai/WildChat-1M">WildChat-1M</a> dataset from HuggingFace, which contains roughly 838,000 ChatGPT conversations collected with user consent, with PII removed or anonymized.</p>
+
+      <h4>2. Keyword pre-filter</h4>
+      <p>A Python script scanned all 838,000 conversations for parenting-related regex patterns in user messages (e.g., "my son", "my daughter", "breastfeeding", "potty training"). Only 2,468 conversations (0.29%) matched and were forwarded to the classifier. This reduced API costs by more than ~300x, but likely came at the cost of filtering out some actual parenting conversations that didn't contain the specific keywords.</p>
+
+      <h4>3. LLM classification: parenting or not?</h4>
+      <p>Each of the 2,468 conversations was classified by Claude Haiku via the Anthropic API to determine: is this a genuine parenting conversation, or fiction/roleplay/etc? A Python script ran a system prompt defined in a config file against each conversation. 171 conversations were classified as genuine parenting. The vast majority of false positives were creative writing (720), fiction/roleplay (527), and students seeking help with homework (228).</p>
+
+      <h4>4. LLM classification: parenting subcategory</h4>
+      <p>Conversations identified as parenting-related were further subcategorized using a separate system prompt defined in the same config file, again using Claude Haiku via the API.</p>
+
+      <h4>5. Manual curation</h4>
+      <p>All 171 conversations were then reviewed by hand. 38 were removed as false positives — conversations that contained parenting keywords and the classifier misidentified as parenting, but were not actually parenting (e.g., teachers writing emails, grammar correction exercises, creative writing about parenting). Manual curation also resulted in some conversations moving from one subcategory to another. I also manually created some new categories based on trends I saw (e.g., "generate me a birthday message for my child", "write me a bar mitzvah speech").</p>
+
+      <h4>6. Same-user deduplication</h4>
+      <p>Using the hashed_ip field in WildChat, we identified cases where the same user had multiple near-identical conversations (e.g., one user had 10 conversations asking ChatGPT to explain 10 different slang terms for bowel-related incidents at school). These were consolidated into single entries with notes referencing the other conversation hashes, reducing the final count from 133 to 117.</p>
 
       <h2>Additional thoughts</h2>
       <p>

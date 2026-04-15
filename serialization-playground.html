@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Serialization for Parameter-Golf — Joyce Yan</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Besley:wght@400;700&family=Figtree:wght@400;700&display=swap" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container-wide">
+    <nav>
+      <a class="site-name" href="/">Joyce Yan</a>
+      <div class="nav-links">
+        <a href="/contact">Contact</a>
+      </div>
+    </nav>
+
+    <main>
+      <h1>Custom Serialization for Parameter-Golf</h1>
+      <p>I recently got nerd-sniped by <a href="https://github.com/openai/parameter-golf">OpenAI's parameter-golf challenge</a>. It's a challenge to train the best language model that fits in a 16MB artifact and trains in 10 minutes in an 8xH100 environment. I came into this not really knowing much about how models were trained and how the model weights are stored, so working through this was a fun learning exercise for me. However, after experimenting with a few simple ideas (ex: adding a small weight decay to the embedding table, increasing the learning rate, etc) with a toy model that ran on my Macbook, I quickly found that any approach that worked well on my Macbook did not necessarily translate to improvements in model performance on an 8xH100 machine. And without having a high degree of confidence that my ideas would work anyways, I quickly burned through my free $25 in compute credits from the competition and didn't really want to invest my own money.</p>
+      <p>So instead, I pivoted to seeing if I could improve upon the serialization / compression layer. While a smaller model doesn't directly translate to improved BPB, having better lossless compression means that you could use more of that artifact space that you save on other things that <em>do</em> improve BPB (ex: wider MLP). Since compression is lossless, it's a strictly better technique for trimming artifact size than lossy approaches like pruning — anyone working on a model that's slightly over the 16MB limit could drop in custom serialization to "buy back" space for free. The main advantage of this pivot though, was that I could iterate on this locally without needing access to expensive GPU's.</p>
+
+      <h2>What I built</h2>
+      <p>I replaced <code>torch.save</code> + <code>zstd-22</code> (the standard approach used by most submissions) with a custom binary format using <strong>Asymmetric Numeral Systems (ANS)</strong> entropy coding. The result: a <strong>2.34% reduction</strong> in compressed size (~363KB saved), with zero loss in model accuracy.</p>
+
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Compressed bytes</th><th>vs Baseline</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Baseline (torch.save + zstd-22)</td><td>15,513,031</td><td>—</td></tr>
+          <tr><td>Custom Serialization</td><td>15,150,085</td><td>-362,946 (-2.34%)</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Why this works</h2>
+      <p><code>torch.save</code> + generic compressors like <code>zstd</code> treat the serialized blob as an opaque byte stream. Since we know the model format, we can do better:</p>
+      <ul>
+        <li><strong>Known value alphabets</strong>: Int6 weights use only 64 possible symbols ([-32, 31]), int8 embeddings use 256. ANS encodes directly against the true symbol distribution, reaching within bits of the entropy floor — whereas generic compressors discover this implicitly through LZ77 pattern matching.</li>
+        <li><strong>Row-level distribution structure</strong>: Rows within the same layer type share similar value distributions. K-means clustering (K=16) on row frequency histograms produces shared ANS probability models that adapt to different weight patterns.</li>
+        <li><strong>Dtype-aware stream separation</strong>: Splitting int8, fp16, and fp32 into independent streams and applying dtype-specific transforms (zigzag encoding for signed integers, byte-shuffling to group fp16 exponent bytes) makes each stream more compressible than the interleaved pickle format.</li>
+        <li><strong>No pickle overhead</strong>: <code>torch.save</code> uses pickle with per-tensor framing, ZIP containers, and metadata (~100KB). Our format stores a compact LZMA-compressed JSON header followed by length-prefixed compressed streams.</li>
+      </ul>
+
+      <h2>Methodology</h2>
+      <p>This format was developed through <strong>62 sequential experiments</strong>, each testing a single isolated change in an automated loop:</p>
+      <ol>
+        <li>Read prior results and notes</li>
+        <li>Design one change, edit <code>serialize.py</code></li>
+        <li>Run <code>python test_serialize.py</code> (roundtrip correctness + size benchmark against the real H100 artifact)</li>
+        <li>Log results to <code>results.tsv</code>, update <code>notes.md</code> with hypothesis/result/insights</li>
+        <li>Keep if compressed size decreased with zero roundtrip error, otherwise revert</li>
+        <li>Repeat</li>
+      </ol>
+      <p>The full experiment history (62 custom-format experiments + 25 additional <code>torch.save</code> fork experiments) is in the playground repo. I also attempted to fork and alter the C implementation of <code>torch.save</code> directly, but the custom binary format proved superior.</p>
+
+      <p>The code is open sourced on <a href="https://github.com/joyceyan/serialization_playground">GitHub</a>, and the submission PR is <a href="https://github.com/openai/parameter-golf/pull/1649">here</a>.</p>
+    </main>
+  </div>
+</body>
+</html>

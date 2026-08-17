@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyOwnPlate — Joyce Yan</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Besley:wght@400;700&family=Figtree:wght@400;700&display=swap" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container-wide">
+    <nav>
+      <a class="site-name" href="/">Joyce Yan</a>
+      <div class="nav-links">
+        <a href="/contact">Contact</a>
+      </div>
+    </nav>
+
+    <main>
+      <h1>MyOwnPlate</h1>
+
+      <p>
+        MyOwnPlate is an iOS app where you can track calories and macros of your meals using AI. You upload a photo of a meal, and then an AI model running locally in the app can estimate the calories and macros.
+      </p>
+
+      <div class="screenshots">
+        <img src="assets/img/myownplate/home.PNG" alt="Home screenshot">
+        <img src="assets/img/myownplate/history.PNG" alt="History screenshot">
+      </div>
+
+      <p>You can log a meal by taking a photo directly in the app or uploading an existing photo. After a photo is uploaded, the model will come up with a natural language description of what food is in the photo, as well as an estimation of calorie / macro counts.</p>
+
+      <div class="screenshots">
+        <img src="assets/img/myownplate/log-meal.PNG" alt="Log meal screenshot">
+        <img src="assets/img/myownplate/analyzing.PNG" alt="Analyzing meal screenshot">
+        <img src="assets/img/myownplate/oatmeal.PNG" alt="Oatmeal screenshot">
+      </div>
+
+      <p>
+        This project was greatly inspired by <a href="https://x.com/_amankishore/status/2047341809626448242">Ambrosia</a>, which showed me how capable LLM’s that are small enough to run on an iPhone can be. The use case of taking photos and using AI to estimate calorie counts was pretty well established by CalAI and others, and I was curious if a fine-tuned LLM running locally would be capable enough to solve this problem. (TL;DR: yes!)
+      </p>
+
+      <p>
+        This was my general approach:
+        <ol>
+          <li>
+            Find a large well-labeled food dataset to train against
+          </li>
+          <li>
+            Identify an open source multi-modal base language model that is small enough to run on an iPhone
+          </li>
+          <li>
+            Use the food dataset to generate a fine-tuned model that is more capable at identifying nutritional information than the base model
+          </li>
+          <li>
+            Quantize the fine-tuned model into something small enough to reasonably fit in an iOS app, hopefully with minimal quality loss
+          </li>
+        </ol>
+      </p>
+
+      <h2>Base model</h2>
+
+      <p>
+        The base model I used is <a href="https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct">Qwen3-VL-2B-Instruct</a>, which is a multimodal (accepts images and text input) model. This is the same base model that Ambrosia used, which showed a fine-tuned flavor of this base model could run on an iOS app. Seemed reasonable to just use the same base model.
+      </p>
+
+      <p>
+        Ideally, Apple would offer a <i>multimodal</i> base model that all app developers could use. The Foundation Models framework allows developers to access a local text-input-only base language model. Developers can bake small LoRA adapters into their iOS apps, which allows you to ship iOS apps that have domain-specific behavior while only incorporating the LoRA adapters into the app binary instead of the base model <i>and</i> the LoRA adapters. If Apple provided a multimodal model at the OS level, my app would be anywhere from 200 to 600MB instead of 1.8GB.
+      </p>
+
+      <h2>Prepping training data</h2>
+
+      <p>
+        I decided to use the <a href="https://github.com/google-research-datasets/Nutrition5k">Nutrition5k dataset</a>, which is a labeled food dataset open sourced by Google that has images of food labeled with calories, protein, fat and carbs. While looking more deeply through the Nutrition5k dataset, I found that most dishes had one image, but some had two or more. To prevent any data leakage, I split the Nutrition5k dataset at the dish ID level, to ensure that all camera angles of the same dish would go to the same split. I did a standard split of 80% training (~3500 meals), 10% validation (349 meals), 10% test (349 meals).
+      </p>
+
+      <p>
+        I set up a data processing script that parsed the CSV data from the Nutrition5k dataset and generated a JSONL file for each data split containing a dish ID, reference to image(s), and all nutrition data (calories, fat, protein, carbs).
+      </p>
+
+      <h2>Fine-tuning</h2>
+
+      <p>
+        I started with Qwen3-VL-2B-Instruct, and I wanted to teach it how to better estimate calories, protein, fat and carbs from my food dataset. Since my compute budget is limited to a Macbook Pro with an M2 chip, fine-tuning with LoRA adapters is the only reasonable way to train a model for a specialized task. Instead of running a full fine-tune to alter the base model’s parameters while training on the Nutrition5k dataset, I chose to have my training generate LoRA adapters instead. When using LoRA adapters, each step of training alters parameters on the adapter matrices instead of altering parameters on the base model.
+      </p>
+
+      <p>
+        I first set up a basic training script to naively generate fine-tuned LoRA adapters against the Nutrition5k dataset. I then set up an autoresearch loop that would experiment changing some parameters, re-run training, and then commit the change if it improved the model's performance.
+      </p>
+
+      <p>
+        During each training experiment, we trained on the 80% of the dataset that was in the "training" split. Once the training run completed, then we evaluated for correctness on the 10% of the dataset in the "validation" split. If the model improved with that experiment's config change, then we kept it. Otherwise, we discarded it and started a new experiment.
+      </p>
+
+      <p>
+        For reference for those who may want to attempt this at home, prior to this project, I had close to zero experience with training or fine-tuning models. All experiment ideas were proposed by Claude; I just gave it the Nutrition5k dataset as a hill to climb. A more experienced machine learning engineer may have been able to set up a less naive base training script or realize before training runs that some of the Claude-proposed ideas would go nowhere.
+      </p>
+
+      <p>
+        Luckily, the neat thing about fine-tuning an LLM that is small enough to run inference on an iPhone is that you can also train it on consumer hardware. I ran the full autoresearch loop on a Macbook Pro. This meant that the cost of a bad experiment was just time spent on training.
+      </p>
+
+      <h2>Running inference on iOS</h2>
+
+      <p>
+        Originally, I ran the fine-tuning using mlx-vlm, which I thought would have been the simplest path for exporting and running inference on an iOS app with Apple MLX. Unfortunately, once I actually exported the fine-tuned model to an iOS app, I found that even after quantizing the MLX model down to 1-bit, I wasn’t able to run the app using Apple MLX for inference without running into OOM issues.
+      </p>
+
+      <p>
+        I then decided to look into using llama.cpp for inference, which requires working with a GGUF model, not an MLX model. But I found that I could not reliably convert the model from MLX to GGUF without significantly degrading the accuracy of the model (18.1% MAE to 67.4% MAE).
+      </p>
+
+      <p>
+        After several failed attempts converting the fine-tuned MLX model to GGUF, I decided it would make more sense to train in the same ecosystem I planned to deploy from. This meant restarting training from scratch using HuggingFace transformers and Parameter-Efficient Fine-Tuning. The HF format that the model is in after training is concluded can be exported to GGUF for on-device inference with minimal loss. After converting it to GGUF, I quantized the model down to 4-bit (Q4_K_M, specifically), which is the final version of the model that gets loaded into the app.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>HF adapters (FP16)</th>
+            <th>GGUF (FP16)</th>
+            <th class="highlight">GGUF (Q4_K_M)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Calories</td>
+            <td>13.6%</td>
+            <td>17.2%</td>
+            <td class="highlight">15.7%</td>
+          </tr>
+          <tr>
+            <td>Protein</td>
+            <td>15.2%</td>
+            <td>20.4%</td>
+            <td class="highlight">18.2%</td>
+          </tr>
+          <tr>
+            <td>Fat</td>
+            <td>19.9%</td>
+            <td>23.2%</td>
+            <td class="highlight">23.5%</td>
+          </tr>
+          <tr>
+            <td>Carbs</td>
+            <td>16.9%</td>
+            <td>19.7%</td>
+            <td class="highlight">19.7%</td>
+          </tr>
+          <tr>
+            <td>Avg</td>
+            <td>16.4%</td>
+            <td>20.1%</td>
+            <td class="highlight">19.3%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        I had looked at using RunAnywhere, which is what Ambrosia uses for inference. RunAnywhere may have some performance improvements compared to llama.cpp, but I decided to use llama.cpp instead because it’s been around a bit longer and has a more generous open source license.
+      </p>
+      
+      <h2>Evaluating model performance</h2>
+
+      <p>To benchmark how good my model was, I evaluated everything against the "test" split of the Nutrition5k dataset:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>Qwen3-VL-2B</th>
+            <th class="highlight">Fine-tuned model</th>
+            <th>Nutrition5k</th>
+            <th>Professional nutritionists</th>
+            <th>Regular humans</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Calories</td>
+            <td>50.7%</td>
+            <td class="highlight">15.7%</td>
+            <td>26.1%</td>
+            <td>41%</td>
+            <td>53%</td>
+          </tr>
+          <tr>
+            <td>Protein</td>
+            <td>53.5%</td>
+            <td class="highlight">18.2%</td>
+            <td>29.5%</td>
+            <td>41%</td>
+            <td>53%</td>
+          </tr>
+          <tr>
+            <td>Fat</td>
+            <td>68.8%</td>
+            <td class="highlight">23.5%</td>
+            <td>34.2%</td>
+            <td>41%</td>
+            <td>53%</td>
+          </tr>
+          <tr>
+            <td>Carbs</td>
+            <td>83.9%</td>
+            <td class="highlight">19.7%</td>
+            <td>31.9%</td>
+            <td>41%</td>
+            <td>53%</td>
+          </tr>
+          <tr>
+            <td>Avg</td>
+            <td>64.2%</td>
+            <td class="highlight">19.3%</td>
+            <td>30.4%</td>
+            <td>41%</td>
+            <td>53%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>My fine-tuned model significantly outperforms the base Qwen model. It also beats out the custom computer vision model Google generated from the Nutrition5k research paper. Both my fine-tuned model and Google’s model from the Nutrition5k paper beat out humans, even if they are professional nutritionists. The data from human nutrition estimation efficacy comes from <a href="https://arxiv.org/pdf/2103.03375">Section 4.6 of the research paper behind Nutrition5k</a>.</p>
+
+      <h2></h2>
+    </main>
+  </div>
+</body>
+</html>

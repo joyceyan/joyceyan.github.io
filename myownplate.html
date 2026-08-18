@@ -23,7 +23,7 @@
       <h1>MyOwnPlate</h1>
 
       <p>
-        MyOwnPlate is an iOS app where you can track calories and macros of your meals using AI. You upload a photo of a meal, and then an AI model running locally in the app can estimate the calories and macros.
+        MyOwnPlate is an iOS app where you can track calories and macros of your meals using AI. You upload a photo of a meal, and then an AI model running locally in the app can estimate the calories and macros. You can check it out on <a href="https://testflight.apple.com/join/AuPAgq4v">Testflight</a>, and also see the code on <a href="https://github.com/joyceyan/my-own-plate">GitHub</a>.
       </p>
 
       <div class="screenshots">
@@ -40,7 +40,7 @@
       </div>
 
       <p>
-        This project was greatly inspired by <a href="https://x.com/_amankishore/status/2047341809626448242">Ambrosia</a>, which showed me how capable LLM’s that are small enough to run on an iPhone can be. The use case of taking photos and using AI to estimate calorie counts was pretty well established by CalAI and others, and I was curious if a fine-tuned LLM running locally would be capable enough to solve this problem. (TL;DR: yes!)
+        This project was greatly inspired by <a href="https://x.com/_amankishore/status/2047341809626448242">Ambrosia</a>, which showed me how capable LLM’s that are small enough to run on an iPhone can be. I wanted to see if I could do something, for a different consumer problem. The use case of taking photos and using AI to estimate calorie counts was pretty well established by CalAI and others, and I was curious if a fine-tuned LLM running locally would be capable enough to solve this problem. (TL;DR: yes!)
       </p>
 
       <p>
@@ -110,7 +110,7 @@
       </p>
 
       <p>
-        I then decided to look into using llama.cpp for inference, which requires working with a GGUF model, not an MLX model. But I found that I could not reliably convert the model from MLX to GGUF without significantly degrading the accuracy of the model (18.1% MAE to 67.4% MAE).
+        I then decided to look into using llama.cpp for inference, which requires working with a GGUF model, not an MLX model. But I found that I could not reliably convert the model from MLX to GGUF without significantly degrading the accuracy of the model.
       </p>
 
       <p>
@@ -128,31 +128,31 @@
         </thead>
         <tbody>
           <tr>
-            <td>Calories</td>
+            <td>Calories MAE*</td>
             <td>13.6%</td>
             <td>17.2%</td>
             <td class="highlight">15.7%</td>
           </tr>
           <tr>
-            <td>Protein</td>
+            <td>Protein MAE*</td>
             <td>15.2%</td>
             <td>20.4%</td>
             <td class="highlight">18.2%</td>
           </tr>
           <tr>
-            <td>Fat</td>
+            <td>Fat MAE*</td>
             <td>19.9%</td>
             <td>23.2%</td>
             <td class="highlight">23.5%</td>
           </tr>
           <tr>
-            <td>Carbs</td>
+            <td>Carbs MAE*</td>
             <td>16.9%</td>
             <td>19.7%</td>
             <td class="highlight">19.7%</td>
           </tr>
           <tr>
-            <td>Avg</td>
+            <td>Avg MAE*</td>
             <td>16.4%</td>
             <td>20.1%</td>
             <td class="highlight">19.3%</td>
@@ -160,13 +160,17 @@
         </tbody>
       </table>
 
+      <p><small>* Mean absolute error (MAE) as a percentage of that field.</small></p>
+
       <p>
         I had looked at using RunAnywhere, which is what Ambrosia uses for inference. RunAnywhere may have some performance improvements compared to llama.cpp, but I decided to use llama.cpp instead because it’s been around a bit longer and has a more generous open source license.
       </p>
       
       <h2>Evaluating model performance</h2>
 
-      <p>To benchmark how good my model was, I evaluated everything against the "test" split of the Nutrition5k dataset:</p>
+      <p>
+        To benchmark my model, I evaluated everything against the "test" split of the Nutrition5k dataset, by looking at the mean absolute error as a percentage of how far off my model's prediction was from the correct values. This matches the dataset and methodology used in Google's <a href="https://arxiv.org/pdf/2103.03375">Nutrition5k research paper</a>. My goal was to beat Google’s Nutrition5k model, though I was kind of surprised it actually did!
+      </p>
 
       <table>
         <thead>
@@ -175,57 +179,65 @@
             <th>Qwen3-VL-2B</th>
             <th class="highlight">Fine-tuned model</th>
             <th>Nutrition5k</th>
-            <th>Professional nutritionists</th>
-            <th>Regular humans</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Calories</td>
+            <td>Calories MAE*</td>
             <td>50.7%</td>
             <td class="highlight">15.7%</td>
             <td>26.1%</td>
-            <td>41%</td>
-            <td>53%</td>
           </tr>
           <tr>
-            <td>Protein</td>
+            <td>Protein MAE*</td>
             <td>53.5%</td>
             <td class="highlight">18.2%</td>
             <td>29.5%</td>
-            <td>41%</td>
-            <td>53%</td>
           </tr>
           <tr>
-            <td>Fat</td>
+            <td>Fat MAE*</td>
             <td>68.8%</td>
             <td class="highlight">23.5%</td>
             <td>34.2%</td>
-            <td>41%</td>
-            <td>53%</td>
           </tr>
           <tr>
-            <td>Carbs</td>
+            <td>Carbs MAE*</td>
             <td>83.9%</td>
             <td class="highlight">19.7%</td>
             <td>31.9%</td>
-            <td>41%</td>
-            <td>53%</td>
           </tr>
           <tr>
-            <td>Avg</td>
+            <td>Avg MAE*</td>
             <td>64.2%</td>
             <td class="highlight">19.3%</td>
             <td>30.4%</td>
-            <td>41%</td>
-            <td>53%</td>
           </tr>
         </tbody>
       </table>
 
-      <p>My fine-tuned model significantly outperforms the base Qwen model. It also beats out the custom computer vision model Google generated from the Nutrition5k research paper. Both my fine-tuned model and Google’s model from the Nutrition5k paper beat out humans, even if they are professional nutritionists. The data from human nutrition estimation efficacy comes from <a href="https://arxiv.org/pdf/2103.03375">Section 4.6 of the research paper behind Nutrition5k</a>.</p>
+      <p><small>* Mean absolute error (MAE) as a percentage of that field.</small></p>
 
-      <h2></h2>
+      <p>
+        Fine-tuning considerably improved performance over the base model. It’s also worth noting that according to Section 4.6 of the research paper behind Nutrition5k, regular humans have an average MAE% of 53%, and professional nutritionists 41%. While no AI tool will ever be as accurate as meticulously measuring food to compute macros, it can pretty clearly outperform even professional humans.
+      </p>
+
+      <h2>Closing thoughts</h2>
+
+      <ul>
+        <li>
+          The app’s binary size could probably be smaller. My primary goal was to get out a working MVP that could run on an iPhone without crashing. But more investigative work could be done to reduce the app’s binary size, ex: quantizing the model down further or integrating with Apple’s OS-level LLM for the text-portion of the model.
+        </li>
+        <li>
+          The version of the app that’s on TestFlight is a pretty bare-bones MVP. Before publishing it on the App Store, I’d like to polish it up a bit and add features like Apple Health integration or barcode scanning to give it feature parity with competitors.
+        </li>
+        <li>
+          The conventional wisdom seems to be that there are few consumer AI use cases that consumers are also willing to pay for to cover the high inference costs. But if fine-tuned local models can be capable of solving (at least some) consumer use cases, then that really changes the economics of consumer AI.
+        </li>
+      </ul>
+
+      <p>
+        Overall, I’m pretty happy with how the project came out! I learned a ton, and it’s cool that fine-tuning an open source LLM on a consumer Macbook is able to generate a model that’s more effective than what ~5 years ago would take a full research team, and has the added benefit of being runnable on a consumer iPhone.
+      </p>
     </main>
   </div>
 </body>

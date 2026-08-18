@@ -312,4 +312,17 @@ img {
     gap: 16px;
   }
 
+  .screenshots {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    overflow-x: visible;
+  }
+
+  .screenshots img {
+    flex: 1 1 100%;
+    width: 100%;
+    height: auto;
+    max-width: 280px;
+  }
+
 }

@@ -40,20 +40,20 @@
       </div>
 
       <p>
-        This project was greatly inspired by <a href="https://x.com/_amankishore/status/2047341809626448242">Ambrosia</a>, which showed me how capable LLM’s that are small enough to run on an iPhone can be. I wanted to see if I could do something, for a different consumer problem. The use case of taking photos and using AI to estimate calorie counts was pretty well established by CalAI and others, and I was curious if a fine-tuned LLM running locally would be capable enough to solve this problem. (TL;DR: yes!)
+        This project was greatly inspired by <a href="https://x.com/_amankishore/status/2047341809626448242">Ambrosia</a>, which showed me how capable LLM’s that are small enough to run on an iPhone can be. I wanted to see if I could do something, for a different consumer problem. The use case of taking photos and using AI to estimate calorie counts was pretty well established by CalAI and others, and I was curious if a fine-tuned LLM running locally would be capable enough to solve this problem.
       </p>
 
       <p>
         This was my general approach:
         <ol>
           <li>
-            Find a large well-labeled food dataset to train against
+            Find a large well-labeled food dataset to train against. I used the <a href="https://github.com/google-research-datasets/Nutrition5k">Nutrition5k dataset</a>, a labeled dataset Google open sourced as part of a research project to build a model that can predict nutrition content from food photos.
           </li>
           <li>
-            Identify an open source multi-modal base language model that is small enough to run on an iPhone
+            Identify an open source multi-modal base language model that is small enough to run on an iPhone. I used <a href="https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct">Qwen3-VL-2B-Instruct</a>.
           </li>
           <li>
-            Use the food dataset to generate a fine-tuned model that is more capable at identifying nutritional information than the base model
+            Use the food dataset to train a fine-tuned model that is more capable at identifying nutritional information than the base model
           </li>
           <li>
             Quantize the fine-tuned model into something small enough to reasonably fit in an iOS app, hopefully with minimal quality loss
@@ -61,7 +61,64 @@
         </ol>
       </p>
 
-      <h2>Base model</h2>
+      <h2>Results</h2>
+
+      <p>
+        My goal was ton beat Google’s Nutrition5k model at estimating calories and macros, which means a lower mean absolute error (MAE) from the correct values. I was kind of surprised it actually did!
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>Qwen3-VL-2B</th>
+            <th class="highlight">Fine-tuned model</th>
+            <th>Nutrition5k</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Calories MAE</td>
+            <td>50.7%</td>
+            <td class="highlight">15.7%</td>
+            <td>26.1%</td>
+          </tr>
+          <tr>
+            <td>Protein MAE</td>
+            <td>53.5%</td>
+            <td class="highlight">18.2%</td>
+            <td>29.5%</td>
+          </tr>
+          <tr>
+            <td>Fat MAE</td>
+            <td>68.8%</td>
+            <td class="highlight">23.5%</td>
+            <td>34.2%</td>
+          </tr>
+          <tr>
+            <td>Carbs MAE</td>
+            <td>83.9%</td>
+            <td class="highlight">19.7%</td>
+            <td>31.9%</td>
+          </tr>
+          <tr>
+            <td>Avg MAE</td>
+            <td>64.2%</td>
+            <td class="highlight">19.3%</td>
+            <td>30.4%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>More specifically, the results are the mean absolute error from the "test" split of the Nutrition5k dataset. This matches the dataset and methodology used in Google's <a href="https://arxiv.org/pdf/2103.03375">Nutrition5k research paper</a>.</p>
+
+      <p>
+        Fine-tuning Qwen3-VL-2B considerably improved performance over the base model. It’s also worth noting that according to Section 4.6 of the research paper behind Nutrition5k, regular humans have an average MAE% of 53%, and professional nutritionists 41%. While no AI tool will ever be as accurate as meticulously measuring food to compute macros, it can pretty clearly outperform even professional humans.
+      </p>
+
+      <h2>Technical stack</h2>
+
+      <h3>Base model</h3>
 
       <p>
         The base model I used is <a href="https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct">Qwen3-VL-2B-Instruct</a>, which is a multimodal (accepts images and text input) model. This is the same base model that Ambrosia used, which showed a fine-tuned flavor of this base model could run on an iOS app. Seemed reasonable to just use the same base model.
@@ -71,7 +128,7 @@
         Ideally, Apple would offer a <i>multimodal</i> base model that all app developers could use. The Foundation Models framework allows developers to access a local text-input-only base language model. Developers can bake small LoRA adapters into their iOS apps, which allows you to ship iOS apps that have domain-specific behavior while only incorporating the LoRA adapters into the app binary instead of the base model <i>and</i> the LoRA adapters. If Apple provided a multimodal model at the OS level, my app would be anywhere from 200 to 600MB instead of 1.8GB.
       </p>
 
-      <h2>Prepping training data</h2>
+      <h3>Data pipeline</h3>
 
       <p>
         I decided to use the <a href="https://github.com/google-research-datasets/Nutrition5k">Nutrition5k dataset</a>, which is a labeled food dataset open sourced by Google that has images of food labeled with calories, protein, fat and carbs. While looking more deeply through the Nutrition5k dataset, I found that most dishes had one image, but some had two or more. To prevent any data leakage, I split the Nutrition5k dataset at the dish ID level, to ensure that all camera angles of the same dish would go to the same split. I did a standard split of 80% training (~3500 meals), 10% validation (349 meals), 10% test (349 meals).
@@ -81,7 +138,7 @@
         I set up a data processing script that parsed the CSV data from the Nutrition5k dataset and generated a JSONL file for each data split containing a dish ID, reference to image(s), and all nutrition data (calories, fat, protein, carbs).
       </p>
 
-      <h2>Fine-tuning</h2>
+      <h3>Fine-tuning</h3>
 
       <p>
         I started with Qwen3-VL-2B-Instruct, and I wanted to teach it how to better estimate calories, protein, fat and carbs from my food dataset. Since my compute budget is limited to a Macbook Pro with an M2 chip, fine-tuning with LoRA adapters is the only reasonable way to train a model for a specialized task. Instead of running a full fine-tune to alter the base model’s parameters while training on the Nutrition5k dataset, I chose to have my training generate LoRA adapters instead. When using LoRA adapters, each step of training alters parameters on the adapter matrices instead of altering parameters on the base model.
@@ -103,7 +160,7 @@
         Luckily, the neat thing about fine-tuning an LLM that is small enough to run inference on an iPhone is that you can also train it on consumer hardware. I ran the full autoresearch loop on a Macbook Pro. This meant that the cost of a bad experiment was just time spent on training.
       </p>
 
-      <h2>Running inference on iOS</h2>
+      <h3>Running inference on iOS</h3>
 
       <p>
         Originally, I ran the fine-tuning using mlx-vlm, which I thought would have been the simplest path for exporting and running inference on an iOS app with Apple MLX. Unfortunately, once I actually exported the fine-tuned model to an iOS app, I found that even after quantizing the MLX model down to 1-bit, I wasn’t able to run the app using Apple MLX for inference without running into OOM issues.
@@ -164,61 +221,6 @@
 
       <p>
         I had looked at using RunAnywhere, which is what Ambrosia uses for inference. RunAnywhere may have some performance improvements compared to llama.cpp, but I decided to use llama.cpp instead because it’s been around a bit longer and has a more generous open source license.
-      </p>
-      
-      <h2>Evaluating model performance</h2>
-
-      <p>
-        To benchmark my model, I evaluated everything against the "test" split of the Nutrition5k dataset, by looking at the mean absolute error as a percentage of how far off my model's prediction was from the correct values. This matches the dataset and methodology used in Google's <a href="https://arxiv.org/pdf/2103.03375">Nutrition5k research paper</a>. My goal was to beat Google’s Nutrition5k model, though I was kind of surprised it actually did!
-      </p>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Nutrient</th>
-            <th>Qwen3-VL-2B</th>
-            <th class="highlight">Fine-tuned model</th>
-            <th>Nutrition5k</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Calories MAE*</td>
-            <td>50.7%</td>
-            <td class="highlight">15.7%</td>
-            <td>26.1%</td>
-          </tr>
-          <tr>
-            <td>Protein MAE*</td>
-            <td>53.5%</td>
-            <td class="highlight">18.2%</td>
-            <td>29.5%</td>
-          </tr>
-          <tr>
-            <td>Fat MAE*</td>
-            <td>68.8%</td>
-            <td class="highlight">23.5%</td>
-            <td>34.2%</td>
-          </tr>
-          <tr>
-            <td>Carbs MAE*</td>
-            <td>83.9%</td>
-            <td class="highlight">19.7%</td>
-            <td>31.9%</td>
-          </tr>
-          <tr>
-            <td>Avg MAE*</td>
-            <td>64.2%</td>
-            <td class="highlight">19.3%</td>
-            <td>30.4%</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <p><small>* Mean absolute error (MAE) as a percentage of that field.</small></p>
-
-      <p>
-        Fine-tuning considerably improved performance over the base model. It’s also worth noting that according to Section 4.6 of the research paper behind Nutrition5k, regular humans have an average MAE% of 53%, and professional nutritionists 41%. While no AI tool will ever be as accurate as meticulously measuring food to compute macros, it can pretty clearly outperform even professional humans.
       </p>
 
       <h2>Closing thoughts</h2>
